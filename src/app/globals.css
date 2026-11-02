@@ -1,0 +1,266 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+body {
+  color: #203c54;
+  background:
+    radial-gradient(ellipse at 24% 20%, #fff6d8 0, transparent 57%),
+    linear-gradient(125deg, #ffdf91 0%, #fff2cf 55%, #ffe6a5 100%);
+  min-height: 100vh;
+  font-family: Arial, "Segoe UI", system-ui, sans-serif;
+}
+.site-header {
+  background: #fff6deee;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 3px 24px #8c691108;
+}
+.site-main {
+  position: relative;
+}
+.registration-layout {
+  position: relative;
+  isolation: isolate;
+}
+.contest-intro {
+  padding-top: 20px;
+  text-align: center;
+  min-width: 0;
+}
+.contest-eyebrow {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.contest-eyebrow > span {
+  width: 38px;
+  height: 1px;
+  background: #d66a42;
+}
+.contest-eyebrow p {
+  padding: 5px 27px;
+  color: white;
+  background: #c34723;
+  transform: skew(-9deg);
+  border-radius: 7px;
+  font-size: 20px;
+  font-weight: 700;
+  font-style: italic;
+  box-shadow: 0 3px 0 #a7351b;
+}
+.contest-title {
+  position: relative;
+  isolation: isolate;
+  margin: 8px 10px 0;
+  padding: 20px 22px 23px;
+  color: #fffdf5;
+  font-size: clamp(25px, 2.4vw, 32px);
+  font-weight: 800;
+  font-style: italic;
+  line-height: 1.45;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.contest-title::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 12px;
+  background: #c34723;
+  box-shadow: 0 5px 0 #a7351b;
+  transform: skew(-3deg);
+  pointer-events: none;
+}
+.contest-description {
+  max-width: 510px;
+  margin: 22px auto 0;
+  color: #4e6270;
+  font-size: 15px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.traffic-illustration {
+  margin: 12px -10px 0;
+}
+.traffic-illustration img {
+  width: 100%;
+  height: auto;
+}
+.contest-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.25fr;
+  padding: 21px 0;
+  border-top: 1px solid #c9a34d66;
+  border-bottom: 1px solid #c9a34d66;
+}
+.contest-facts > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 8px;
+  text-align: left;
+}
+.contest-facts > div + div {
+  border-left: 1px solid #c9a34d66;
+}
+.contest-facts svg {
+  width: 21px;
+  height: 21px;
+  color: #a76a22;
+  flex-shrink: 0;
+}
+.contest-facts strong {
+  display: block;
+  font-size: 15px;
+  color: #174f83;
+}
+.contest-facts span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #63717a;
+}
+.contest-note {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 20px;
+  margin-top: 21px;
+  font-size: 12px;
+  color: #65717a;
+}
+.contest-note a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #164e82;
+  font-weight: 700;
+}
+.registration-card {
+  box-shadow:
+    0 14px 45px #84632017,
+    0 2px 4px #84632008;
+}
+.registration-card-heading {
+  background: #174f83;
+  border-bottom: 4px solid #efb947;
+}
+.traffic-lights {
+  position: absolute;
+  right: 18px;
+  top: 19px;
+  display: flex;
+  gap: 5px;
+  padding: 7px;
+  border-radius: 20px;
+  background: #103b63;
+}
+.traffic-lights i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ed705e;
+}
+.traffic-lights i:nth-child(2) {
+  background: #ffd45c;
+}
+.traffic-lights i:nth-child(3) {
+  background: #61c5a1;
+}
+.registration-card input,
+.registration-card select {
+  min-height: 45px;
+  background-color: #fffefa;
+  border-color: #d8dfe3;
+}
+.start-exam-button {
+  background: #bb431f;
+  box-shadow: 0 4px 10px #ba431f22;
+}
+.start-exam-button:hover:not(:disabled) {
+  background: #a33618;
+  transform: translateY(-1px);
+}
+.site-footer {
+  border-top: 1px solid #d9b96170;
+  background: #fff8e780;
+}
+@layer base {
+  input[type="checkbox"] {
+    accent-color: #185f9e;
+  }
+  input:not([type="checkbox"]):not([type="file"]),
+  select,
+  textarea {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2;
+  }
+  a,
+  button {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2;
+  }
+}
+@media (max-width: 1023px) {
+  .contest-intro {
+    max-width: 700px;
+    margin: 0 auto;
+    padding-top: 8px;
+  }
+  .contest-title {
+    font-size: clamp(25px, 4vw, 32px);
+  }
+  .traffic-illustration {
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .registration-card {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+}
+@media (max-width: 480px) {
+  .contest-intro {
+    padding-top: 0;
+  }
+  .contest-description {
+    font-size: 14px;
+    margin-top: 17px;
+  }
+  .contest-facts {
+    padding: 16px 0;
+  }
+  .contest-facts > div {
+    flex-direction: column;
+    text-align: center;
+    gap: 7px;
+    padding: 0 4px;
+  }
+  .contest-facts strong {
+    font-size: 12px;
+  }
+  .contest-facts span {
+    font-size: 10px;
+  }
+  .contest-title {
+    margin-left: 6px;
+    margin-right: 6px;
+    padding: 18px 14px 21px;
+    font-size: 23px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

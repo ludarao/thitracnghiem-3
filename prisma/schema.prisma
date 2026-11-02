@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model ExamResult {
+  id                  String   @id @default(cuid())
+  // Thông tin thí sinh
+  fullName            String
+  rank                String   // Cấp bậc
+  position            String   // Chức vụ
+  unit                String   // Đơn vị
+  // Kết quả bài thi
+  score               Float    // Điểm /10
+  correctCount        Int
+  totalQuestions      Int
+  percentage          Float    // % điểm
+  isPassed            Boolean
+  totalDurationSeconds Int
+  // Thời gian
+  startTime           DateTime
+  endTime             DateTime
+  submittedAt         DateTime @default(now())
+  // Chi tiết bài làm (JSON)
+  answersJson         String   @db.Text
+
+  @@index([unit])
+  @@index([submittedAt])
+}
+
+model QuizSettings {
+  id String @id @default("main")
+  config Json
+  questions Json
+  activeExamId String @default(cuid())
+}
+model Candidate {
+  id String @id @default(cuid())
+  phone String?
+  code String @unique
+  info Json
+  @@index([phone])
+}
+model Attempt {
+  id String @id @default(cuid())
+  token String @unique
+  candidateId String
+  examId String
+  info Json
+  config Json
+  questions Json
+  answers Json
+  currentIndex Int @default(0)
+  questionStartedAt DateTime @default(now())
+  startTime DateTime @default(now())
+  deadline DateTime
+  submittedAt DateTime?
+  result Json?
+  summary Json?
+  bankId String?
+  version Int @default(0)
+  @@index([examId, candidateId, submittedAt])
+  @@index([submittedAt, id])
+}
+model AdminAccount {
+  id String @id @default("main")
+  passwordHash String
+  failedAttempts Int @default(0)
+  lockedUntil DateTime?
+}
+model AdminSession {
+  token String @id
+  expiresAt DateTime
+}
+
+model QuestionBank {
+  id String @id
+  questions Json
+}
