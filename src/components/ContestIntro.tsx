@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteBranding } from "../lib/site-branding.mjs";
 import type { ExamConfig } from "../types/quiz";
 import { resolveContestBranding } from "../lib/branding.mjs";
 
@@ -6,6 +7,15 @@ export default function ContestIntro({ config }: { config: ExamConfig }) {
   const branding = resolveContestBranding(config);
   return (
     <section className="contest-intro" aria-labelledby="contest-title">
+      <div className="contest-watermark" aria-hidden="true">
+        <div className="contest-watermark-glow" />
+        <img
+          src={siteBranding(config.siteBranding).logo}
+          alt=""
+          width={400}
+          height={449}
+        />
+      </div>
       <p className="contest-eyebrow">Cuộc thi trực tuyến</p>
       <h1 id="contest-title" className="contest-title">
         {branding.title}

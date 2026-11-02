@@ -26,9 +26,63 @@ body {
   isolation: isolate;
 }
 .contest-intro {
+  position: relative;
+  isolation: isolate;
   padding: 32px 12px;
   min-width: 0;
   align-self: center;
+}
+.contest-watermark {
+  position: absolute;
+  inset: -100px -32px;
+  z-index: -1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.contest-watermark img {
+  grid-area: 1 / 1;
+  width: min(88%, 520px);
+  height: auto;
+  opacity: 0.085;
+  filter: saturate(0.65);
+  animation: contest-logo-float 6s ease-in-out infinite;
+}
+.contest-watermark-glow {
+  grid-area: 1 / 1;
+  width: min(100%, 680px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fffdf7a0 0%,
+    #efbf5540 38%,
+    #4b93c51c 58%,
+    transparent 73%
+  );
+  animation: contest-glow-breathe 4s ease-in-out infinite;
+}
+@keyframes contest-logo-float {
+  0%,
+  100% {
+    transform: translateY(10px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes contest-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
 }
 .contest-eyebrow {
   margin-bottom: 20px;
