@@ -15,7 +15,14 @@ export interface UnitTarget {
   targetCount: number; // Tổng quân số/biên chế của đơn vị
 }
 
+export interface SiteBranding {
+  navbarTitle: string;
+  navbarSubtitle: string;
+  logo: string;
+}
+
 export interface ExamConfig {
+  siteBranding?: SiteBranding;
   monitorEnabled?: boolean;
   maxAwaySeconds?: number;
   preventCopy?: boolean;

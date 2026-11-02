@@ -1421,3 +1421,78 @@ test("dashboard invalid pages reject before DB access", async () => {
     db.$queryRaw = original;
   }
 });
+
+test("Admin branding persists publicly without copying logo data into exam attempts", async () => {
+  reset();
+  const brandingRoute = require("../src/app/api/branding/route.ts");
+  const defaultBranding = (await (await brandingRoute.GET()).json()).branding;
+  assert.equal(defaultBranding.logo, "/csgt-logo.png");
+  const headers = await login();
+  const siteBranding = {
+    navbarTitle: "ĐƠN VỊ MỚI",
+    navbarSubtitle: "Dòng một\nDòng hai",
+    logo: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+  };
+  const response = await settings.PUT(
+    req(
+      "/api/config",
+      "PUT",
+      {
+        config: { ...config.config, siteBranding },
+      },
+      headers,
+    ),
+  );
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).config.siteBranding, siteBranding);
+  const publicData = await (await brandingRoute.GET()).json();
+  assert.deepEqual(publicData.branding, siteBranding);
+  assert.deepEqual(Object.keys(publicData).sort(), ["branding", "success"]);
+  const attempt = await start();
+  assert.equal(attempt.config.siteBranding, undefined);
+  assert.equal(attempts.get(attempt.id).config.siteBranding, undefined);
+  // An older Admin client must not reset branding when it omits the new field.
+  const { siteBranding: omitted, ...oldClientConfig } = config.config;
+  assert.equal(
+    (
+      await settings.PUT(
+        req("/api/config", "PUT", { config: oldClientConfig }, headers),
+      )
+    ).status,
+    200,
+  );
+  assert.deepEqual(config.config.siteBranding, siteBranding);
+});
+
+test("Admin branding rejects unsafe/oversized logos and invalid header names without saving", async () => {
+  reset();
+  const headers = await login();
+  const original = structuredClone(config.config);
+  for (const invalid of [
+    { logo: "javascript:alert(1)" },
+    { logo: "https://other.example/logo.png" },
+    { logo: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=" },
+    { logo: "data:image/png;base64," + "A".repeat(180001) },
+    { navbarTitle: " " },
+    { navbarTitle: "A".repeat(161) },
+    { navbarSubtitle: "A".repeat(301) },
+  ]) {
+    const response = await expectedError(() =>
+      settings.PUT(
+        req(
+          "/api/config",
+          "PUT",
+          {
+            config: {
+              ...original,
+              siteBranding: { ...original.siteBranding, ...invalid },
+            },
+          },
+          headers,
+        ),
+      ),
+    );
+    assert.equal(response.status, 400);
+    assert.deepEqual(config.config, original);
+  }
+});

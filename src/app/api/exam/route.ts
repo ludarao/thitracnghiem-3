@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     const raw = issueAttemptToken();
     const now = new Date();
     const bankId = await saveBank(s.questions as unknown as Question[]);
-    const { units, ...attemptConfig } = cfg;
+    const { units, siteBranding, ...attemptConfig } = cfg;
     const attempt = await prisma.$transaction(async (tx) => {
       // Serialize the final insertion against an Admin purge/period change.
       const [current] = await tx.$queryRaw<

@@ -4,6 +4,12 @@ Bản sao độc lập từ `ludarao/thitracnghiem-2`, nhánh `main`, commit `5d
 
 Bản sao chỉ gồm các file mã nguồn đã được commit. Không sao chép database, dữ liệu thí sinh, mật khẩu, secret, file `.env` thật, thư mục `.vercel`, build hoặc thư viện từ app nguồn. Các nội dung đã đổi qua Admin của app nguồn (tên/mô tả cuộc thi, đề thi, cấu hình) không tự chuyển sang; app mới dùng mặc định từ mã nguồn cho đến khi bạn nhập lại trong Admin.
 
+## Tùy chỉnh giao diện
+
+Trong Admin, mục **Logo & tên đầu trang** cho phép tải logo PNG/JPG/WebP (tối đa 5 MB, tự thu nhỏ), thay tên chính và tên phụ, hoặc khôi phục logo giao thông. Bấm **Lưu Cấu Hình** để áp dụng. Logo được lưu cùng cấu hình trong database, không cần deploy lại hoặc thêm dịch vụ lưu ảnh. Tên phụ có thể xuống dòng hoặc để trống.
+
+Phần giới thiệu bên trái chỉ dùng chữ: chỉnh **Tiêu Đề Kỳ Thi** và **Nội dung giới thiệu bên trái / Hướng dẫn** trong Admin. Nội dung giữ xuống dòng. Tiêu đề tab trình duyệt cố định là **Hệ thống thi trắc nghiệm online**. Cấu hình mới không cần migration và không thay nội dung các lượt thi đã tạo.
+
 ## Chức năng hiện tại
 
 - Đăng ký bằng viết tắt họ tên và số điện thoại; mục đơn vị được ẩn, mã ví dụ `ptb0985728123`.

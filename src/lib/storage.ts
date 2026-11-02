@@ -1,7 +1,9 @@
+import { DEFAULT_SITE_BRANDING } from "./site-branding.mjs";
 import type { ExamConfig, ExamResult, CollectiveRank } from "../types/quiz";
 import { CONTEST_TITLE, CONTEST_DESCRIPTION } from "./branding.mjs";
 
 export const DEFAULT_CONFIG: ExamConfig = {
+  siteBranding: { ...DEFAULT_SITE_BRANDING },
   title: CONTEST_TITLE,
   description: CONTEST_DESCRIPTION,
   monitorEnabled: true,

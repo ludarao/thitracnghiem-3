@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "../components/Navbar";
-import { CONTEST_TITLE, CONTEST_DESCRIPTION } from "../lib/branding.mjs";
+import { CONTEST_DESCRIPTION } from "../lib/branding.mjs";
 
 export const metadata: Metadata = {
-  title: CONTEST_TITLE,
+  title: "Hệ thống thi trắc nghiệm online",
   description: CONTEST_DESCRIPTION,
   icons: { icon: "/csgt-logo.png" },
 };

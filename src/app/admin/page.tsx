@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  DEFAULT_SITE_BRANDING,
+  BRANDING_UPDATED_EVENT,
+  MAX_LOGO_LENGTH,
+  siteBranding,
+} from "../../lib/site-branding.mjs";
 import Verification from "../../components/Verification";
 import React, { useState, useEffect, useRef } from "react";
 import { api } from "../../lib/client";
@@ -29,6 +35,54 @@ import {
 } from "lucide-react";
 
 export default function AdminPage() {
+  const [logoBusy, setLogoBusy] = useState(false);
+  const [logoMessage, setLogoMessage] = useState("");
+  const logoPending = useRef(false);
+  const uploadLogo = async (file?: File) => {
+    if (!file || logoPending.current) return;
+    logoPending.current = true;
+    setLogoBusy(true);
+    setLogoMessage("");
+    try {
+      if (
+        !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
+        file.size > 5 * 1024 * 1024
+      )
+        throw new Error("Chọn ảnh PNG, JPG hoặc WebP tối đa 5 MB.");
+      const bitmap = await createImageBitmap(file);
+      let logo: string;
+      try {
+        const scale = Math.min(1, 256 / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+        canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Trình duyệt không xử lý được ảnh.");
+        ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        logo = canvas.toDataURL("image/webp", 0.9);
+      } finally {
+        bitmap.close();
+      }
+      if (logo.length > MAX_LOGO_LENGTH)
+        throw new Error("Ảnh còn quá lớn. Hãy chọn logo đơn giản hơn.");
+      setConfig((current) =>
+        current
+          ? {
+              ...current,
+              siteBranding: { ...siteBranding(current.siteBranding), logo },
+            }
+          : current,
+      );
+      setLogoMessage("Đã chọn logo. Bấm Lưu Cấu Hình để áp dụng.");
+    } catch (error) {
+      setLogoMessage(
+        (error as Error).message || "Không đọc được ảnh. Hãy chọn ảnh khác.",
+      );
+    } finally {
+      logoPending.current = false;
+      setLogoBusy(false);
+    }
+  };
   const [security, setSecurity] = useState({ enabled: false, siteKey: "" });
   const [verificationToken, setVerificationToken] = useState("");
   const [verificationReset, setVerificationReset] = useState(0);
@@ -234,12 +288,19 @@ export default function AdminPage() {
     }
   };
   const handleSaveConfig = async () => {
-    if (!config) return;
+    if (!config || logoPending.current) return;
     try {
-      await api("/api/config", {
+      const saved = await api("/api/config", {
         method: "PUT",
         body: JSON.stringify({ config, questions }),
       });
+      setConfig(saved.config);
+      window.dispatchEvent(
+        new CustomEvent(BRANDING_UPDATED_EVENT, {
+          detail: siteBranding(saved.config.siteBranding),
+        }),
+      );
+      setLogoMessage("");
       alert("Đã lưu cấu hình chung cho toàn bộ thí sinh.");
     } catch (e) {
       alert((e as Error).message);
@@ -459,6 +520,7 @@ export default function AdminPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleSaveConfig}
+            disabled={logoBusy}
             className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm shadow-sm transition-all flex items-center gap-1.5"
           >
             <Save className="w-4 h-4" />
@@ -570,6 +632,117 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* CỘT 1 & 2: CẤU HÌNH KỲ THI & ĐƠN VỊ */}
         <div className="lg:col-span-2 space-y-8">
+          <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+            <h3 className="text-base font-bold text-slate-900 border-b pb-3">
+              Logo & tên đầu trang
+            </h3>
+            <div className="flex flex-wrap items-center gap-4">
+              <img
+                src={siteBranding(config.siteBranding).logo}
+                alt="Xem trước logo đầu trang"
+                className="h-20 w-20 rounded-xl border border-slate-200 bg-white p-2 object-contain"
+              />
+              <div className="min-w-0 flex-1 space-y-2">
+                <label
+                  htmlFor="navbar-logo"
+                  className="block text-sm font-semibold text-slate-700"
+                >
+                  Thay logo
+                </label>
+                <input
+                  id="navbar-logo"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  disabled={logoBusy}
+                  className="block w-full text-xs"
+                  onChange={(e) => {
+                    void uploadLogo(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+                <p className="text-xs text-slate-500">
+                  PNG, JPG hoặc WebP tối đa 5 MB. Ảnh được tự thu nhỏ để hiển
+                  thị trên đầu trang.
+                </p>
+                <button
+                  type="button"
+                  disabled={logoBusy}
+                  className="text-xs underline text-brand-700"
+                  onClick={() => {
+                    setConfig({
+                      ...config,
+                      siteBranding: {
+                        ...siteBranding(config.siteBranding),
+                        logo: DEFAULT_SITE_BRANDING.logo,
+                      },
+                    });
+                    setLogoMessage(
+                      "Bấm Lưu Cấu Hình để dùng lại logo giao thông.",
+                    );
+                  }}
+                >
+                  Dùng lại logo giao thông
+                </button>
+              </div>
+            </div>
+            {(logoBusy || logoMessage) && (
+              <p role="status" className="text-sm text-brand-700">
+                {logoBusy ? "Đang xử lý ảnh..." : logoMessage}
+              </p>
+            )}
+            <div>
+              <label
+                htmlFor="navbar-title"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                Tên chính đầu trang
+              </label>
+              <input
+                id="navbar-title"
+                type="text"
+                maxLength={160}
+                value={siteBranding(config.siteBranding).navbarTitle}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    siteBranding: {
+                      ...siteBranding(config.siteBranding),
+                      navbarTitle: e.target.value,
+                    },
+                  })
+                }
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="navbar-subtitle"
+                className="block text-xs font-semibold text-slate-700 mb-1"
+              >
+                Tên phụ đầu trang (có thể xuống dòng hoặc để trống)
+              </label>
+              <textarea
+                id="navbar-subtitle"
+                rows={3}
+                maxLength={300}
+                value={siteBranding(config.siteBranding).navbarSubtitle}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    siteBranding: {
+                      ...siteBranding(config.siteBranding),
+                      navbarSubtitle: e.target.value,
+                    },
+                  })
+                }
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+              />
+            </div>
+            <p className="text-xs text-slate-500">
+              Bấm Lưu Cấu Hình để áp dụng logo và tên đầu trang trên toàn
+              website.
+            </p>
+          </section>
           {/* Cấu hình chung kỳ thi */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
             <h3 className="text-base font-bold text-slate-900 border-b pb-3 flex items-center gap-2">
@@ -594,10 +767,10 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Mô Tả / Hướng Dẫn
+                  Nội dung giới thiệu bên trái / Hướng dẫn
                 </label>
                 <textarea
-                  rows={2}
+                  rows={6}
                   value={config.description}
                   onChange={(e) =>
                     setConfig({ ...config, description: e.target.value })

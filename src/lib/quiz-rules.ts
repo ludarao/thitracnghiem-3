@@ -1,3 +1,4 @@
+import { validateSiteBranding } from "./site-branding.mjs";
 import { randomInt } from "node:crypto";
 import type { ExamConfig, Question } from "../types/quiz";
 export function normalizeServiceNumber(value: unknown): string {
@@ -112,6 +113,7 @@ export function validateConfig(config: ExamConfig, count: number) {
   }
   return {
     ...protection,
+    siteBranding: validateSiteBranding(config.siteBranding),
     title: config.title.trim(),
     description: config.description,
     totalTimeMinutes: config.totalTimeMinutes,
