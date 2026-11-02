@@ -60,11 +60,11 @@ export default function Navbar() {
               />
             </span>
             <span className="flex min-w-0 flex-col max-w-full lg:max-w-lg break-words">
-              <span className="font-bold text-brand-700 leading-tight text-xs sm:text-base">
+              <span className="font-bold text-brand-700 leading-tight text-sm sm:text-lg">
                 {branding.navbarTitle}
               </span>
               {branding.navbarSubtitle && (
-                <span className="mt-1 whitespace-pre-line text-[10px] sm:text-xs font-semibold leading-relaxed text-brand-700">
+                <span className="mt-0.5 whitespace-pre-line text-[11px] sm:text-sm font-semibold leading-tight text-brand-700">
                   {branding.navbarSubtitle}
                 </span>
               )}
