@@ -23,11 +23,10 @@ export default function RootLayout({
         </main>
         <footer className="site-footer mt-12 py-6 text-center">
           <p className="font-bold text-brand-800 text-sm">
-            Hiểu luật giao thông · Vững bước an toàn
+            Cục Cảnh sát giao thông - Bộ Công an
           </p>
           <p className="mt-2 text-xs text-slate-600">
-            © {new Date().getFullYear()} · Cuộc thi tìm hiểu kiến thức pháp luật
-            về trật tự an toàn giao thông đường bộ
+            © {new Date().getFullYear()} · Hệ thống thi trắc nghiệm trực tuyến
           </p>
         </footer>
       </body>
