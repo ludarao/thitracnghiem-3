@@ -17,6 +17,7 @@ Phần giới thiệu bên trái chỉ dùng chữ: chỉnh **Tiêu Đề Kỳ T
 - Đáp án/tiến độ lưu trên máy, nộp một lần và có thể gửi lại khi lỗi mạng; server chấm điểm và chống lưu trùng.
 - Dashboard: 20 thí sinh/trang (che 4 số cuối điện thoại); ẩn cột đơn vị và bảng xếp hạng đơn vị.
 - Admin nhập câu hỏi/đơn vị qua Excel, xuất toàn bộ lượt nộp ra Excel, sao lưu JSON và xóa dữ liệu có xác nhận mật khẩu.
+- Admin có trang **Thống kê dự thi** để xem số đã nộp, đạt và chưa đạt trong kỳ hiện tại, lọc danh sách và xuất Excel theo đơn vị. Mỗi số điện thoại tính một lần theo lượt có điểm cao nhất, bằng điểm lấy lượt nộp mới hơn. Lượt cũ thiếu đơn vị xuất hiện trong nhóm **Chưa ghi nhận đơn vị**.
 - Giám sát rời tab/ứng dụng và chống copy theo cấu hình, xử lý local; xác minh Turnstile tùy chọn.
 
 Đơn vị đã chọn được lưu theo từng lượt thi và có trong file Excel xuất từ Admin. Các lượt thi cũ có thể để trống đơn vị. Thay đổi này dùng schema hiện có.
