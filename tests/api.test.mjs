@@ -332,6 +332,9 @@ test("API đăng ký: từ chối thiếu/sai viết tắt, điện thoại và 
     { ...userInfo, phone: "" },
     { ...userInfo, phone: "098572812" },
     { ...userInfo, phone: 985728123 },
+    { nameInitials: userInfo.nameInitials, phone: userInfo.phone },
+    { ...userInfo, unit: "" },
+    { ...userInfo, unit: null },
     { ...userInfo, unit: "Đơn vị không tồn tại" },
   ]) {
     const response = await expectedError(() =>
@@ -341,19 +344,13 @@ test("API đăng ký: từ chối thiếu/sai viết tắt, điện thoại và 
   }
   assert.equal(candidates.size, 0);
 });
-test("API đăng ký không cần đơn vị, giữ dữ liệu cũ và nộp bài bình thường", async () => {
+test("API giữ lượt cũ chưa có đơn vị và lưu đơn vị cho lượt thi mới", async () => {
   reset();
-  await start();
-  const existingCandidate = [...candidates.values()][0];
-  const originalInfo = structuredClone(existingCandidate.info);
-  const noUnit = await start({
-    nameInitials: userInfo.nameInitials,
-    phone: userInfo.phone,
-  });
-  assert.equal(candidates.size, 1);
-  assert.deepEqual(existingCandidate.info, originalInfo);
-  assert.equal(noUnit.userInfo.unit, "");
-  const response = await action(noUnit.token, {
+  const old = await start();
+  const candidate = candidates.get(old.candidateCode);
+  candidate.info = { ...candidate.info, unit: "" };
+  attempts.get(old.id).info.unit = "";
+  const response = await action(old.token, {
     action: "submit",
     answers: { 1: "A", 2: "B" },
   });
@@ -361,13 +358,16 @@ test("API đăng ký không cần đơn vị, giữ dữ liệu cũ và nộp b�
   assert.equal(response.status, 200);
   assert.equal(submitted.result.score, 10);
   assert.equal(submitted.result.userInfo.unit, "");
-  const fresh = await start({ nameInitials: "nva", phone: "0985728124" });
-  assert.equal(fresh.userInfo.unit, "");
-  assert.equal(
-    [...candidates.values()].find((c) => c.code === fresh.candidateCode).info
-      .unit,
-    "",
-  );
+  const fresh = await start();
+  assert.equal(candidates.size, 1);
+  assert.equal(fresh.candidateCode, old.candidateCode);
+  assert.equal(fresh.userInfo.unit, userInfo.unit);
+  const newResponse = await action(fresh.token, {
+    action: "submit",
+    answers: { 1: "A", 2: "B" },
+  });
+  assert.equal(newResponse.status, 200);
+  assert.equal((await newResponse.json()).result.userInfo.unit, userInfo.unit);
 });
 test("API lượt thi: không lộ đáp án đúng, chấm server và nộp trùng không đổi kết quả", async () => {
   reset();

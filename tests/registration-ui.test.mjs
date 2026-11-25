@@ -264,8 +264,8 @@ test("offline active attempt restores without loading registration config", asyn
   }
 });
 
-test("registration hides unit selection and starts with only initials and phone", async () => {
-  const h = setup();
+test("registration requires a configured unit and sends it with the candidate identity", async () => {
+  const h = setup({ ...session, userInfo: { ...session.userInfo, unit: "" } });
   try {
     await h.flush();
     h.api = async () => ({
@@ -276,9 +276,16 @@ test("registration hides unit selection and starts with only initials and phone"
     await h.flush();
     const input = (id) => nodes(h.tree).find((n) => n.props?.id === id);
     assert.equal(input("service-number"), undefined);
-    assert.equal(input("candidate-unit"), undefined);
-    assert.equal(nodes(h.tree).filter((n) => n.type === "select").length, 0);
-    assert.ok(!text(h.tree).includes("Đơn vị"));
+    const unit = () => input("candidate-unit");
+    assert.equal(unit().type, "select");
+    assert.equal(unit().props.required, true);
+    assert.equal(unit().props.value, "");
+    assert.deepEqual(
+      nodes(unit())
+        .filter((n) => n.type === "option")
+        .map((n) => n.props.value),
+      ["", "A"],
+    );
     input("name-initials").props.onChange({ target: { value: "P T B" } });
     h.render();
     input("candidate-phone").props.onChange({
@@ -302,14 +309,23 @@ test("registration hides unit selection and starts with only initials and phone"
         },
       };
     };
-    await nodes(h.tree)
-      .find((n) => n.type === "form")
-      .props.onSubmit({ preventDefault() {} });
+    const submit = () =>
+      nodes(h.tree)
+        .find((n) => n.type === "form")
+        .props.onSubmit({ preventDefault() {} });
+    await submit();
+    await h.flush();
+    assert.equal(sent, undefined);
+    assert.ok(text(h.tree).includes("Vui lòng chọn đơn vị."));
+    unit().props.onChange({ target: { value: "A" } });
+    h.render();
+    await submit();
     await h.flush();
     assert.deepEqual(sent.userInfo, {
       nameInitials: "ptb",
       phone: "0985728123",
       candidateCode: "ptb0985728123",
+      unit: "A",
     });
     assert.ok(text(h.tree).includes("ptb0985728123"));
   } finally {

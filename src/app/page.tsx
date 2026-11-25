@@ -492,11 +492,18 @@ export default function ExamPage() {
   } catch {
     /* Display only a complete, valid code. */
   }
+  const selectedUnit = config?.units.some((unit) => unit.name === userInfo.unit)
+    ? userInfo.unit
+    : "";
   const handleStartExam = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy || ownership.status !== "owned" || recovery) return;
     if (!registrationReady || registrationPending.current) {
       setError("Vui lòng chờ tải cấu hình đăng ký hoặc bấm tải lại cấu hình.");
+      return;
+    }
+    if (!selectedUnit) {
+      setError("Vui lòng chọn đơn vị.");
       return;
     }
     if (security.enabled && !verificationToken) {
@@ -513,6 +520,7 @@ export default function ExamPage() {
         body: JSON.stringify({
           userInfo: {
             ...candidateIdentity(userInfo.nameInitials, userInfo.phone),
+            unit: selectedUnit,
           },
           verificationToken,
         }),
@@ -862,6 +870,33 @@ export default function ExamPage() {
                   Dùng cùng viết tắt họ tên và số điện thoại khi thi lại; hệ
                   thống ghi nhận điểm cao nhất.
                 </p>
+              </div>
+              <div>
+                <label
+                  htmlFor="candidate-unit"
+                  className="block text-sm font-medium text-slate-700 mb-1"
+                >
+                  3. Đơn vị <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="candidate-unit"
+                  required
+                  value={selectedUnit}
+                  onChange={(e) => {
+                    setUserInfo((prev) => ({ ...prev, unit: e.target.value }));
+                    setError("");
+                  }}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm"
+                >
+                  <option value="" disabled>
+                    Chọn đơn vị
+                  </option>
+                  {config.units.map(({ name }) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
               </div>
               {registrationCode && (
                 <p
